@@ -1,12 +1,12 @@
 from django.db import models
 
 # Create your models here.
-class SignUp(models.Model):
+class Sign_up(models.Model):
     name        = models.CharField(max_length=10)
     email       = models.CharField(max_length=30)
-    password    = models.IntegerField(null=True)
-    phoneNumber = models.IntegerField(null=True)
+    password    = models.CharField(max_length=20)
+    phoneNumber = models.CharField(max_length=20)
 
     class Meta:
-        db_table = "signUps"
+        db_table = "sign_ups"
     
