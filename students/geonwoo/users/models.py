@@ -4,8 +4,8 @@ from django.db import models
 class SignUp(models.Model):
     name        = models.CharField(max_length=10)
     email       = models.CharField(max_length=30)
-    password    = models.IntegerField(max_length=15)
-    phoneNumber = models.IntegerField(max_length=15)
+    password    = models.IntegerField(null=True)
+    phoneNumber = models.IntegerField(null=True)
 
     class Meta:
         db_table = "signUps"
