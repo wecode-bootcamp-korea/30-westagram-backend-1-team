@@ -13,9 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# main url로 대분기를 나눠주는 곳!!
 
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
+    path('users', include('users.urls'))
 
 ]
