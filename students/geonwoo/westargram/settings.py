@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'users',
+    
 ]
 
 MIDDLEWARE = [
@@ -137,6 +139,7 @@ CORS_ALLOW_METHODS = (
     'PATCH',
     'POST',
     'PUT',
+    
 )
     
 CORS_ALLOW_HEADERS = (
