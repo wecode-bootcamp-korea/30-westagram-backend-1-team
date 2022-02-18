@@ -1,7 +1,6 @@
 import json
 import re #유효성검사
 
-
 from django.http  import JsonResponse
 from django.views import View
 from users.models import User
@@ -31,9 +30,6 @@ class UserView(View):
                 return JsonResponse({"message":"duplicate_email"}, status=400)
             if users.filter(phone_number =data["phone_number"]):
                 return JsonResponse({"message":"duplicate_phone_number"}, status=400)
-            
-            
-            
             
             users = User.objects.create(
                 name         = data['name'],
