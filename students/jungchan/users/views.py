@@ -29,3 +29,4 @@ class SignupView(View):
             return JsonResponse({'message':'SUCCESS'}, status=201)
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400) 
+            
