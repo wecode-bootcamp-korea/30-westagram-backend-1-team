@@ -11,12 +11,21 @@ class UserView(View):
         try:
             data = json.loads(request.body)
 
-            self.validate_email(data["email"])
-            self.validate_password(data["password"])
+            REGEX_EMAIL    = '([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+            REGEX_PASSWORD = '^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()])[\w\d!@#$%^&*()]{8,}$'
+            
+            if not re.match(REGEX_EMAIL, data["email"]):
+                return JsonResponse({"message":"VALIDATION_ERROR1"}, status=400)
+
+            if not re.match(REGEX_PASSWORD, data["password"]):
+                return JsonResponse({"message":"VALIDATION_ERROR2"}, status=400)
+
+            if User.objects.filter(email=data["email"]).exists():
+                return JsonResponse({"message":"VALIDATION_ERROR3"}, status=400)
 
             user = User.objects.create(
-                name         = data['name'],
-                email        = data['email'],
+                name         = data['name'], 
+                email        = data['email'], 
                 password     = data['password'],
                 phone_number = data['phone_number']
             )
@@ -24,15 +33,3 @@ class UserView(View):
 
         except KeyError:
             return JsonResponse({"message":"KEY_ERROR"}, status=400)
-
-    def validate_email(self, email):
-        REGEX_EMAIL = '([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
-        if not re.match(REGEX_EMAIL,email):
-            return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
-        if User.objects.filter(email=email).exists():
-            return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
-
-    def validate_password(self, password):
-        REGEX_PASSWORD = '^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()])[\w\d!@#$%^&*()]{8,}$'
-        if not re.match(REGEX_PASSWORD, password):
-            return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
