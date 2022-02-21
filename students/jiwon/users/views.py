@@ -15,13 +15,13 @@ class UserView(View):
             REGEX_PASSWORD = '^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()])[\w\d!@#$%^&*()]{8,}$'
             
             if not re.match(REGEX_EMAIL, data["email"]):
-                return JsonResponse({"message":"VALIDATION_ERROR1"}, status=400)
+                return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
 
             if not re.match(REGEX_PASSWORD, data["password"]):
-                return JsonResponse({"message":"VALIDATION_ERROR2"}, status=400)
+                return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
 
             if User.objects.filter(email=data["email"]).exists():
-                return JsonResponse({"message":"VALIDATION_ERROR3"}, status=400)
+                return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
 
             user = User.objects.create(
                 name         = data['name'], 
