@@ -1,5 +1,6 @@
 import json
 import re 
+import bcrypt
 
 from django.http  import JsonResponse
 from django.views import View
@@ -9,9 +10,14 @@ from users.models import User
 class UserView(View):
     def post(self, request):
         try:
-            data           = json.loads(request.body)
             REGEX_EMAIL    = ('^[a-zA-Z0-9_-]+@[a-z]+\.[a-z]+')
-            REGEX_PASSWORD = ('^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$') 
+            REGEX_PASSWORD = ('^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$')
+            
+            data           = json.loads(request.body)
+            name         = data['name']
+            email        = data['email']
+            password     = data['password']
+            phone_number = data['phone_number']
         
             if not re.match(REGEX_EMAIL,data['email']):
                 return JsonResponse({"message":"invalid_email"},status=400)
@@ -22,14 +28,19 @@ class UserView(View):
             if User.objects.filter(email = data["email"]).exists():
                 return JsonResponse({"message":"duplicate_email"}, status=400)
             
-            if User.objects.filter(phone_number =data["phone_number"]):
+            if User.objects.filter(phone_number =data["phone_number"]).exists():
                 return JsonResponse({"message":"duplicate_phone_number"}, status=400)
             
+            new_salt        = bcrypt.gensalt()
+            new_password    = password.encode('utf-8')
+            hashed_password = bcrypt.hashpw(new_password,new_salt) 
+            decode_password = hashed_password.decode('utf-8')      
+           
             User.objects.create(
-                name         = data['name'],
-                email        = data['email'],
-                password     = data['password'],
-                phone_number = data['phone_number'],
+                name         = name,
+                email        = email,
+                password     = decode_password,
+                phone_number = phone_number,
             )
             return JsonResponse({"message":"success"},status=201)
         except KeyError:
