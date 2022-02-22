@@ -61,11 +61,11 @@ class LoginView(View):
             user            = User.objects.get(email=email)
             hashed_password = user.password.encode('utf-8') 
           
-            if bcrypt.checkpw(password.encode('utf-8)'),hashed_password) == True:
+            if bcrypt.checkpw(password.encode('utf-8)'),hashed_password):
                 token = jwt.encode({'user-id': user.id},SECRET,AIGORITHM)
                 return JsonResponse({"token":token},status=200)
             
             return JsonResponse({"message": "INVAILD_PASSWORD"}, status=400)  
-        
+
         except KeyError:
                 return JsonResponse({"message": "KEY_ERROR"}, status=400)
