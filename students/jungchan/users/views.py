@@ -1,10 +1,12 @@
-import json, re
+import json
+import bcrypt
 
-from django.http import JsonResponse
+from django.http  import JsonResponse
 from django.views import View
 
-from users.models import User
+from users.models     import User
 from users.validation import valid_email, valid_password
+
 
 class SignupView(View):
     def post(self, request):
@@ -23,17 +25,22 @@ class SignupView(View):
             
             if User.objects.filter(email=email).exists(): 
                     return JsonResponse({'message':'Overlapped_email'}, status=400)
+
+            encoded_password = password.encode('utf-8')
+            hashed_password  = bcrypt.hashpw(encoded_password, bcrypt.gensalt())
+            decoded_password = hashed_password.decode('utf-8')
             
             signup = User.objects.create(
                 name         = name,
                 email        = email,
-                password     = password,
+                password     = decoded_password,
                 phone_number = phone_number
             )
             return JsonResponse({'message':'SUCCESS'}, status=201)
+
         except KeyError:
             return JsonResponse({'message':'KeyError'}, status=400) 
-            
+
 class LoginView(View):
     def post(self, request):
         try:
