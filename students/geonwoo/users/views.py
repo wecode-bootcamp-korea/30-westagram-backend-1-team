@@ -65,7 +65,7 @@ class LoginView(View):
                 token = jwt.encode({'user-id': user.id},SECRET,AIGORITHM)
                 return JsonResponse({"token":token},status=200)
             
-            return JsonResponse({"message": "INVAILD_USER"}, status=400)  
+            return JsonResponse({"message": "INVAILD_USER"}, status=401)  
 
         except KeyError:
-                return JsonResponse({"message": "KEY_ERROR"}, status=400)
+                return JsonResponse({"message": "KEY_ERROR"}, status=400) 
