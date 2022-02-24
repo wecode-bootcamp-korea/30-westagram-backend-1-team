@@ -1,9 +1,10 @@
-import json, re, bcrypt
+import json, re, bcrypt, jwt
 
 from django.http  import JsonResponse, HttpResponse
 from django.views import View
 
 from users.models import User
+from my_settings  import SECRET_KEY, ALGORITHM
 
 class SignupView(View):
     def post(self, request):
@@ -18,22 +19,18 @@ class SignupView(View):
 
             if not re.match(REGEX_PASSWORD, data["password"]):
                 return JsonResponse({"message":"VALIDATION_ERROR "}, status=400)
+            
+            if User.objects.filter(email=data["email"]).exists():
+                return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
 
             encoded_pw = data["password"].encode('utf-8')
             hashed_pw = bcrypt.hashpw(encoded_pw, bcrypt.gensalt())
             decoded_pw = hashed_pw.decode('utf-8')
- 
-            password        = data['password'].encode('utf-8')
-            password_bcrypt = bcrypt.hashpw(password, bcrypt.gensalt())
-            password_bcrypt = password_bcrypt.decode('utf-8')
-
-            if User.objects.filter(email=data["email"]).exists():
-                return JsonResponse({"message":"VALIDATION_ERROR"}, status=400)
 
             user = User.objects.create(
                 name         = data['name'],
                 email        = data['email'],
-                password     = password_bcrypt,
+                password     = decoded_pw,
                 phone_number = data['phone_number'],
             )
             return JsonResponse({"message":"SUCCESS"}, status=201)
@@ -46,16 +43,21 @@ class SigninView(View):
         try :
             data = json.loads(request.body)
 
-            if not User.objects.filter(email=data["email"], password=data["password"]):
+            if not User.objects.filter(email=data["email"]).exists():
                 return JsonResponse({"message":"INVALID_USER"}, status=401)
 
-            if bcrypt.checkpw(data['password'].encode('utf-8'), User.password.encode('utf-8')):
-                return JsonResponse({"message":"TRUE"}, status=200)
+            user = User.objects.get(email=data["email"])
+                
+            if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                return JsonResponse({"message":"INVALID_PASSWORD"}, status=401)
 
-            return JsonResponse({"message":"SUCCESS"}, status=200)
+            token = jwt.encode({"user_id":user.id}, SECRET_KEY, ALGORITHM)
+
+            return JsonResponse({"message":"SUCCESS", "token":token}, status=200)
 
         except KeyError:
             return JsonResponse({"message":"KEY_ERROR"}, status=400)
+
 
 
         
